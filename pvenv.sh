@@ -106,9 +106,6 @@ main() {
     # Escolher o diretório de instalação
     escolher_diretorio_instalacao
 
-    # Configurar otimizações específicas para a versão escolhida do Python
-    configurar_otimizacoes
-
     # Pergunta ao usuário qual versão do Python ele deseja usar
     echo "Escolha uma versão do Python:"
     PYENV_VERSIONS=$(pyenv install --list | grep -E '^\s*[2-3]\.[0-9]+\.[0-9]+$' | tail -10)
@@ -116,11 +113,15 @@ main() {
     read -rp "Digite a versão escolhida: " PYTHON_VERSION
     if [ -z "$PYTHON_VERSION" ]; then
         PYENV_VERSION=$(echo "$PYENV_VERSIONS" | tail -1 | tr -d ' ')
-        export PYENV_VERSION
     else
         PYENV_VERSION=$PYTHON_VERSION
-        export PYENV_VERSION
     fi
+    export PYENV_VERSION
+
+    echo "Versão do Python escolhida: $PYENV_VERSION"
+
+    # Configurar otimizações específicas para a versão escolhida do Python
+    configurar_otimizacoes
 
     # Instalar a versão do Python
     instalar_python
