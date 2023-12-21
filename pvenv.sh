@@ -93,9 +93,16 @@ configurar_otimizacoes() {
 # Função para instalar a versão do Python
 instalar_python() {
     echo "Instalando a versão $PYENV_VERSION."
+
+    # Definindo a variável de ambiente para a ordem dos bytes em sistemas macOS
+    if [ "$os" = "Mac" ]; then
+        export ax_cv_c_float_words_bigendian=no
+    fi
+
     pyenv install --force "${PYENV_VERSION}"
     echo "Versão $PYENV_VERSION instalada com sucesso."
 }
+
 
 # Função para criar um ambiente virtual
 criar_venv() {
