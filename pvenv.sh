@@ -6,7 +6,7 @@
 
 # Para o script se qualquer comando falhar
 set -e
-
+set -x
 # Identificação do Sistema Operacional
 detectar_os() {
     case "$(uname -s)" in
