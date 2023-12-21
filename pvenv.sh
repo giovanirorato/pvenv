@@ -111,10 +111,11 @@ main() {
 
     # Pergunta ao usuário qual versão do Python ele deseja usar
     echo "Escolha uma versão do Python:"
-    pyenv install --list | grep -P '^\s*\d+\.\d+\.\d+$' | tail -10
+    PYENV_VERSIONS=$(pyenv install --list | grep -E '^\s*[2-3]\.[0-9]+\.[0-9]+$' | tail -10)
+    echo "$PYENV_VERSIONS"
     read -rp "Digite a versão escolhida: " PYTHON_VERSION
     if [ -z "$PYTHON_VERSION" ]; then
-        PYENV_VERSION="$(pyenv install --list | grep -P '^\s*\d+\.\d+\.\d+$' | tail -1 | tr -d ' ')"
+        PYENV_VERSION=$(echo "$PYENV_VERSIONS" | tail -1 | tr -d ' ')
         export PYENV_VERSION
     else
         PYENV_VERSION=$PYTHON_VERSION
