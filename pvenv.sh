@@ -54,7 +54,13 @@ escolher_diretorio_instalacao() {
 # Função para configurar as opções de otimização com base na versão do Python, no ambiente e no hardware
 configurar_otimizacoes() {
     echo "Configurando otimizações para Python $PYENV_VERSION no $os..."
-    MAKEFLAGS="-j$(nproc)"
+
+    # Ajustar MAKEFLAGS com base no sistema operacional
+    if [ "$os" = "Linux" ]; then
+        MAKEFLAGS="-j$(nproc)"
+    elif [ "$os" = "Mac" ]; then
+        MAKEFLAGS="-j$(sysctl -n hw.ncpu)"
+    fi
 
     if [[ "$PYENV_VERSION" =~ 3.12.* ]]; then
         # Otimizações para Python 3.12
