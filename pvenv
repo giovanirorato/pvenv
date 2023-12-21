@@ -39,6 +39,18 @@ atualizar_pyenv() {
     echo "Pyenv atualizado com sucesso."
 }
 
+# Função para escolher o diretório de instalação
+escolher_diretorio_instalacao() {
+    read -rp "Digite o caminho do diretório onde você deseja instalar o ambiente virtual (deixe em branco para usar o diretório atual): " diretorio_instalacao
+    if [ -z "$diretorio_instalacao" ]; then
+        diretorio_instalacao=$(pwd)
+    else
+        # Verificar se o diretório existe, senão, criá-lo
+        mkdir -p "$diretorio_instalacao"
+    fi
+    echo "O ambiente virtual será instalado em: $diretorio_instalacao"
+}
+
 # Função para configurar as opções de otimização com base na versão do Python, no ambiente e no hardware
 configurar_otimizacoes() {
     echo "Configurando otimizações para Python $PYENV_VERSION no $os..."
@@ -90,6 +102,9 @@ main() {
 
     # Atualizar pyenv
     atualizar_pyenv
+
+    # Escolher o diretório de instalação
+    escolher_diretorio_instalacao
 
     # Configurar otimizações específicas para a versão escolhida do Python
     configurar_otimizacoes
