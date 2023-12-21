@@ -54,7 +54,34 @@ escolher_diretorio_instalacao() {
 # Função para configurar as opções de otimização com base na versão do Python, no ambiente e no hardware
 configurar_otimizacoes() {
     echo "Configurando otimizações para Python $PYENV_VERSION no $os..."
-    # ... (conforme já definido anteriormente)
+    MAKEFLAGS="-j$(nproc)"
+
+    if [[ "$PYENV_VERSION" =~ 3.12.* ]]; then
+        # Otimizações para Python 3.12
+        CFLAGS="-O3 -flto -march=native -mtune=native"
+        CXXFLAGS="${CFLAGS}"
+        LDFLAGS="${CFLAGS}"
+        if [ "$os" = "Linux" ]; then
+            PYTHON_CONFIGURE_OPTS="--enable-optimizations --with-lto --enable-shared"
+        else
+            PYTHON_CONFIGURE_OPTS="--with-lto --enable-shared"
+        fi
+    elif [[ "$PYENV_VERSION" =~ 3.11.* ]]; then
+        # Otimizações para Python 3.11
+        CFLAGS="-O3 -flto -march=native -mtune=native"
+        CXXFLAGS="${CFLAGS}"
+        LDFLAGS="${CFLAGS}"
+        PYTHON_CONFIGURE_OPTS="--with-lto --enable-shared"
+    else
+        # Configurações padrão para outras versões
+        CFLAGS="-O2 -flto"
+        CXXFLAGS="${CFLAGS}"
+        LDFLAGS="${CFLAGS}"
+        PYTHON_CONFIGURE_OPTS="--enable-shared"
+    fi
+
+    # Exportar as variáveis
+    export MAKEFLAGS CFLAGS CXXFLAGS LDFLAGS PYTHON_CONFIGURE_OPTS
 }
 
 # Função para instalar a versão do Python
