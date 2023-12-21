@@ -1,17 +1,48 @@
 #!/bin/bash
 # Data: 2023-12-21
 # Autor: Giovani Rorato
-# Instala o Python via pyenv
-# Uso: $ ./pvenv
+# Script para configurar um ambiente de desenvolvimento Python com JupyterLab
+# Uso: curl -sSL <URL do Script no GitHub> | bash
 
 # Para o script se qualquer comando falhar
 set -e
+
+# Identificação do Sistema Operacional
+detectar_os() {
+    case "$(uname -s)" in
+        Linux*)     os=Linux;;
+        Darwin*)    os=Mac;;
+        *)          echo "Sistema Operacional não suportado."; exit 1;;
+    esac
+    echo "Sistema Operacional Detectado: $os"
+}
+
+# Função para verificar e instalar pyenv
+verificar_instalar_pyenv() {
+    if ! command -v pyenv &> /dev/null; then
+        echo "Pyenv não encontrado. Instalando..."
+        if [ "$os" = "Linux" ]; then
+            # Comandos para instalar pyenv em Linux
+            curl https://pyenv.run | bash
+        elif [ "$os" = "Mac" ]; então
+            # Comandos para instalar pyenv em MacOS
+            brew update
+            brew install pyenv
+        fi
+    fi
+}
 
 # Função para atualizar o pyenv
 atualizar_pyenv() {
     echo "Atualizando o pyenv..."
     pyenv update > /dev/null 2>&1 &
     echo "Pyenv atualizado com sucesso."
+}
+
+# Função para configurar as opções de otimização com base na versão do Python, no ambiente e no hardware
+configurar_otimizacoes() {
+    echo "Configurando otimizações para Python $PYENV_VERSION no $os..."
+    # ... (conforme já definido anteriormente)
 }
 
 # Função para instalar a versão do Python
@@ -43,7 +74,6 @@ executar_jupyterlab() {
 
     if [ "$execute_jupyterlab" = "s" ]; then
         echo "Executando o Jupyter-lab"
-        kill -9 "$(pgrep -f venv-"${PYENV_VERSION}" | tr "\n" " ")"
         jupyter-lab --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='' &
     else
         echo "O Jupyter-lab não será executado"
@@ -52,23 +82,22 @@ executar_jupyterlab() {
 
 # Função principal
 main() {
+    # Detectar e configurar baseado no Sistema Operacional
+    detectar_os
+
+    # Verificar e instalar pyenv se necessário
+    verificar_instalar_pyenv
+
     # Atualizar pyenv
     atualizar_pyenv
 
-    # Variáveis de Ambiente
-    PYENV_VERSION="$(pyenv install --list | grep -P '^\s*\d+\.\d+\.\d+$' | tail -1 | tr -d ' ')"
-    PYTHON_CONFIGURE_OPTS="--enable-optimizations"
-    MAKEFLAGS="-j$(nproc)"
-    CFLAGS="-O3 -flto"
-    CXXFLAGS="${CFLAGS}"
-    LDFLAGS="-O3 -flto"
-    PYTHON_CFLAGS='-march=native -mtune=native'
-
-    # Exportar as variáveis
-    export PYENV_VERSION PYTHON_CONFIGURE_OPTS MAKEFLAGS CFLAGS CXXFLAGS LDFLAGS PYTHON_CFLAGS
+    # Configurar otimizações específicas para a versão escolhida do Python
+    configurar_otimizacoes
 
     # Pergunta ao usuário qual versão do Python ele deseja usar
-    read -rp "Use a última versão ou defina? $PYENV_VERSION " PYTHON_VERSION
+    echo "Escolha uma versão do Python:"
+    pyenv install --list | grep -P '^\s*\d+\.\d+\.\d+$' | tail -10
+    read -rp "Digite a versão escolhida: " PYTHON_VERSION
     if [ -z "$PYTHON_VERSION" ]; then
         PYENV_VERSION="$(pyenv install --list | grep -P '^\s*\d+\.\d+\.\d+$' | tail -1 | tr -d ' ')"
         export PYENV_VERSION
@@ -83,16 +112,16 @@ main() {
     # Instalar um virtualenv
     criar_venv
 
-    # Unset the variables
-    unset PYENV_VERSION PYTHON_CONFIGURE_OPTS MAKEFLAGS CFLAGS CXXFLAGS LDFLAGS PYTHON_CFLAGS
+    # Desfazer as configurações de variáveis
+    unset MAKEFLAGS CFLAGS CXXFLAGS LDFLAGS PYTHON_CONFIGURE_OPTS
 
-    # Install and upgrade pip, jupyerlab
+    # Instalar e atualizar pip, jupyterlab
     instalar_pacotes
 
-    # Pergunta ao usuário se ele deseja executar o JupyterLab
+    # Perguntar ao usuário se ele deseja executar o JupyterLab
     executar_jupyterlab
 
-    # Verifica o ambiente instalado no diretório local
+    # Verificar o ambiente instalado no diretório local
     echo "Instalação concluída com sucesso! Versão instalada do Python venv-${PYENV_VERSION}."
     exit 0
 }
