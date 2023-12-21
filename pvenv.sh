@@ -24,7 +24,7 @@ verificar_instalar_pyenv() {
         if [ "$os" = "Linux" ]; then
             # Comandos para instalar pyenv em Linux
             curl https://pyenv.run | bash
-        elif [ "$os" = "Mac" ]; então
+        elif [ "$os" = "Mac" ]; then
             # Comandos para instalar pyenv em MacOS
             brew update
             brew install pyenv
