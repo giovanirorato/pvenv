@@ -41,7 +41,7 @@ atualizar_pyenv() {
 
 # Função para escolher o diretório de instalação
 escolher_diretorio_instalacao() {
-    read -p "Digite o caminho do diretório onde você deseja instalar: [($pwd)] " diretorio_instalacao
+    read -p "Digite o caminho do diretório onde você deseja instalar: [$(pwd)] " diretorio_instalacao
     if [ -z "$diretorio_instalacao" ]; then
         diretorio_instalacao=$(pwd)
     else
