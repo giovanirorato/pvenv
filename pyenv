@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Data: 2023-12-21
 # Autor: Giovani Rorato
 # Script para configurar um ambiente de desenvolvimento Python com JupyterLab
