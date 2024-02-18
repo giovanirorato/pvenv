@@ -10,4 +10,4 @@ Roda em Linux e MacOS.
 
 ## Novo comando
 
-    curl -L https://raw.githubusercontent.com/giovanirorato/pvenv/main/pvenv | bash
+    set -e curl -s -S -L https://raw.githubusercontent.com/giovanirorato/pvenv/main/pvenv | bash
