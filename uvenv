@@ -1,0 +1,80 @@
+#!/bin/bash
+# Data: 2025-06-06
+# Autor: Giovani Rorato
+# Script para configurar um ambiente Python usando apenas o uv.
+# Ele baixa a versao do Python desejada e cria o virtualenv com `uv venv`,
+# instalando tambem os pacotes basicos.
+
+set -eo pipefail
+
+# Identifica sistema operacional (apenas para exibicao)
+identificar_os() {
+    case "$(uname -s)" in
+        Linux*) os=Linux;;
+        Darwin*) os=Mac;;
+        *) echo "Sistema Operacional nao suportado." >&2; exit 1;;
+    esac
+    echo "Sistema Operacional detectado: $os"
+}
+
+# Verifica e instala uv
+verificar_instalar_uv() {
+    if ! command -v uv >/dev/null 2>&1; then
+        echo "uv nao encontrado. Instalando..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+}
+
+# Escolhe diretorio para o ambiente
+escolher_diretorio() {
+    read -p "Diretorio para instalar o ambiente [$(pwd)]: " dir_inst
+    dir_inst=${dir_inst:-$(pwd)}
+    mkdir -p "$dir_inst" && cd "$dir_inst"
+    echo "Ambiente sera instalado em: $dir_inst"
+}
+
+# Cria virtualenv com uv
+criar_venv() {
+    echo "Criando virtualenv com uv..."
+    uv venv "venv-${PYTHON_VERSION}" --python "${PYTHON_VERSION}"
+    echo "Virtualenv criado em venv-${PYTHON_VERSION}"
+}
+
+# Instala pacotes
+instalar_pacotes() {
+    echo "Instalando pacotes basicos..."
+    source "venv-${PYTHON_VERSION}/bin/activate"
+    uv pip install --upgrade pip jupyterlab
+    deactivate
+    echo "Pacotes instalados."
+}
+
+# Executa JupyterLab opcionalmente
+executar_jupyter() {
+    read -rp "Deseja executar o JupyterLab? (s/n) " resp
+    if [ "$resp" = "s" ]; then
+        source "venv-${PYTHON_VERSION}/bin/activate"
+        jupyter-lab --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token=''
+    else
+        echo "JupyterLab nao sera executado."
+    fi
+}
+
+main() {
+    identificar_os
+    verificar_instalar_uv
+    escolher_diretorio
+    echo "Escolha uma versao do Python:"
+    AVAILABLE_VERSIONS=$(uv python list | awk '$1 ~ /^cpython-/ {print $1}' | grep -v '+freethreaded' | cut -d- -f2 | sort -Vr | uniq | head -n 10)
+    echo "$AVAILABLE_VERSIONS"
+    read -rp "Digite a versao desejada: " PYTHON_VERSION
+    PYTHON_VERSION=${PYTHON_VERSION:-$(echo "$AVAILABLE_VERSIONS" | head -n 1)}
+    echo "Versao selecionada: $PYTHON_VERSION"
+    criar_venv
+    instalar_pacotes
+    executar_jupyter
+    echo "Ambiente pronto em venv-${PYTHON_VERSION}"
+}
+
+main
