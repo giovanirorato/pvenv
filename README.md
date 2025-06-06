@@ -24,6 +24,15 @@ Durante a execução você poderá:
 
 O script criará um virtualenv chamado `venv-<versao>` utilizando o pyenv.
 
+### Variante com uv
+Se preferir usar o [uv](https://github.com/astral-sh/uv) para gerenciar todo o ambiente, utilize o script `uvenv` presente neste repositório:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/giovanirorato/pvenv/main/uvenv -o uvenv.sh && bash uvenv.sh
+```
+
+Essa versão não depende do pyenv: o próprio `uv` baixa a versão do Python informada, cria o virtualenv e instala os pacotes, garantindo um processo rápido e simples.
+
 ## Avisos de segurança
 Caso opte por iniciar o JupyterLab, ele será executado com `--allow-root` e sem
 token por padrão. Para ambientes acessíveis publicamente recomenda-se definir um
